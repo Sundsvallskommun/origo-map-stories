@@ -1,0 +1,37 @@
+{
+  "headerText": "Testkarta",
+  "images": {
+    "headerImage": "/content-files/site-assets/header-image.png",
+    "buttonIcon": "/content-files/site-assets/button-icon.png",
+    "cornerLogo": "/content-files/site-assets/corner-logo.png"
+  },
+  "menus": [
+    {
+      "id": "bostader",
+      "label": "Bostäder",
+      "items": [
+        {
+          "id": "nulage",
+          "label": "Nuläge",
+          "layerName": "Test_Bostader_Nulage"
+        },
+        {
+          "id": "framtid",
+          "label": "Framtid 2040",
+          "layerName": "Test_Bostader_Framtid"
+        }
+      ]
+    },
+    {
+      "id": "trafik",
+      "label": "Trafik",
+      "items": [
+        {
+          "id": "kollektiv",
+          "label": "Kollektivtrafik",
+          "layerName": "Test_Kollektivtrafik"
+        }
+      ]
+    }
+  ]
+}

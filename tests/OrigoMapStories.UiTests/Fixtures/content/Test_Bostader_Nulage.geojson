@@ -1,0 +1,82 @@
+{
+  "type": "FeatureCollection",
+  "name": "Test_Bostader_Nulage",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::3006"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "B1",
+      "properties": {
+        "fid": "B1",
+        "namn": "Centrum"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              612000,
+              6916000
+            ],
+            [
+              620000,
+              6916000
+            ],
+            [
+              620000,
+              6924000
+            ],
+            [
+              612000,
+              6924000
+            ],
+            [
+              612000,
+              6916000
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "B2",
+      "properties": {
+        "fid": "B2",
+        "namn": "Norr"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              626000,
+              6936000
+            ],
+            [
+              634000,
+              6936000
+            ],
+            [
+              634000,
+              6944000
+            ],
+            [
+              626000,
+              6944000
+            ],
+            [
+              626000,
+              6936000
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

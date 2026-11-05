@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kartredigerare</title>
+  <style>
+    :root {
+      --oms-primary:       #1f5f8b;
+      --oms-primary-hover: #174a6c;
+      --oms-primary-tint:  #e9f0f6;
+      --oms-font:   system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --border:     #d3d8de;
+      --panel:      #f5f6f8;
+      --surface:    #ffffff;
+      --text:       #1d1d1f;
+      --muted:      #4f4f55;
+      --toolbar-h:  48px;
+      --panel-w:    172px;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--oms-font);
+      font-size: 14px;
+      color: var(--text);
+      background: var(--panel);
+      overflow: hidden;
+    }
+
+    /* ── Toolbar ─────────────────────────────────────────── */
+    #ed-toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: var(--toolbar-h);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 10px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      z-index: 100;
+    }
+
+    .ed-toolbar-sep {
+      width: 1px;
+      height: 28px;
+      background: var(--border);
+      flex-shrink: 0;
+    }
+
+    .ed-tool-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 16px;
+      color: var(--muted);
+      transition: background 0.1s;
+      flex-shrink: 0;
+    }
+    .ed-tool-btn:hover { background: var(--oms-primary-tint); color: var(--oms-primary); }
+    .ed-tool-btn.is-active {
+      background: #d9eeff;
+      border-color: var(--oms-primary);
+      color: var(--oms-primary);
+    }
+    .ed-tool-btn:focus-visible { outline: 2px solid var(--oms-primary); outline-offset: 1px; }
+
+    .ed-toolbar-right {
+      margin-left: auto;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 1;
+      min-width: 0;
+    }
+
+    #ed-status {
+      font-size: 12px;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      min-width: 0;
+      flex-shrink: 1;
+    }
+    .ed-toolbar-right button { flex-shrink: 0; }
+
+    /* Narrow screens (phones): tighter buttons so all three fit. */
+    @media (max-width: 520px) {
+      #ed-toolbar { gap: 4px; padding: 0 6px; }
+      .ed-toolbar-right { gap: 4px; }
+      .ed-btn-primary, .ed-btn-secondary { padding: 5px 7px; font-size: 12px; }
+    }
+    #ed-status.ed-status-error { color: #c00; }
+
+    .ed-btn-primary, .ed-btn-secondary {
+      padding: 5px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: inherit;
+      white-space: nowrap;
+    }
+    .ed-btn-primary {
+      background: var(--oms-primary);
+      color: #fff;
+      border: 1px solid transparent;
+    }
+    .ed-btn-primary:hover { background: var(--oms-primary-hover); }
+    .ed-btn-secondary {
+      background: var(--surface);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .ed-btn-secondary:hover { background: var(--panel); }
+
+    /* ── Body ────────────────────────────────────────────── */
+    #ed-body {
+      position: fixed;
+      top: var(--toolbar-h);
+      bottom: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+    }
+
+    /* ── Symbol panel ────────────────────────────────────── */
+    #ed-symbol-panel {
+      width: var(--panel-w);
+      flex-shrink: 0;
+      overflow-y: auto;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      padding: 6px 0 20px;
+    }
+
+    .ed-cat-label {
+      padding: 10px 10px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+    }
+
+    .ed-sym-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
+      padding: 6px 4px 5px;
+      border: 0;
+      border-left: 3px solid transparent;
+      background: transparent;
+      cursor: pointer;
+      gap: 3px;
+    }
+    .ed-sym-btn:hover { background: #eef7ff; }
+    .ed-sym-btn.is-active {
+      background: #ddeeff;
+      border-left-color: var(--oms-primary);
+    }
+    .ed-sym-btn:focus-visible { outline: 2px solid var(--oms-primary); outline-offset: -2px; }
+
+    .ed-sym-label {
+      font-size: 11px;
+      color: var(--muted);
+      text-align: center;
+      line-height: 1.2;
+    }
+    .ed-sym-btn.is-active .ed-sym-label { color: var(--oms-primary); font-weight: 700; }
+
+    /* ── Map ─────────────────────────────────────────────── */
+    #ed-map {
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Make OL cursor crosshair when a draw tool is active */
+    #ed-map.draw-active { cursor: crosshair; }
+
+    /* ── Login dialog ────────────────────────────────────── */
+    .ed-dlg-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
+    .ed-dlg {
+      background: var(--surface);
+      border-radius: 6px;
+      padding: 24px 28px;
+      min-width: 300px;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.18);
+    }
+    .ed-dlg h3 { margin-bottom: 14px; font-size: 18px; }
+    .ed-dlg input {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .ed-dlg input:focus { outline: 2px solid var(--oms-primary); }
+    .ed-dlg-err { min-height: 18px; font-size: 12px; color: #c00; margin: 6px 0 2px; }
+    .ed-dlg-row { display: flex; gap: 8px; margin-top: 10px; }
+
+    /* ── OL attribution (keep visible) ──────────────────── */
+    .ol-attribution { font-size: 11px; }
+  </style>
+</head>
+<body>
+
+<div id="ed-toolbar">
+  <button id="ed-tool-select" class="ed-tool-btn" title="Markera / flytta (V)">&#9654;</button>
+  <button id="ed-tool-delete" class="ed-tool-btn" title="Ta bort markerade objekt (Del)">&#128465;</button>
+  <div class="ed-toolbar-right">
+    <span id="ed-status"></span>
+    <button id="ed-btn-close" class="ed-btn-secondary">Avbryt</button>
+    <button id="ed-btn-save" class="ed-btn-secondary">Spara</button>
+    <button id="ed-btn-save-close" class="ed-btn-primary">Spara och stäng</button>
+  </div>
+</div>
+
+<div id="ed-body">
+  <aside id="ed-symbol-panel"></aside>
+  <div id="ed-map"></div>
+</div>
+
+<script src="editor.js"></script>
+</body>
+</html>

@@ -1,0 +1,2163 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Gör så här"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Ingen PostgreSQL/PostGIS-databas är tillgänglig, eller så når innehållsservern den inte eller svarar inte. Kartans menyer, texter och kartlager lagras i databasen och kan därför inte visas just nu."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Är du besökare behöver du inte göra något. Resten av texten riktar sig till den som installerar och driver kartan. Byt ut allt inom "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "<"
+        },
+        {
+          "type": "text",
+          "text": " och "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": ">"
+        },
+        {
+          "type": "text",
+          "text": " mot egna värden."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Vad har hänt"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Innehållsservern hämtar allt innehåll från databasen och startar inte utan den. Antingen är databasen inte installerad, inte igång eller inte åtkomlig, eller så saknar innehållsservern rätt uppgifter för att koppla upp sig. Finns det redan en databasserver går det bra att använda den. Hoppa då till \"Skapa databasen\"."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Kartan kan inte avgöra vilket av detta som gäller, och inte heller om det är innehållsservern själv som inte svarar. Har det fungerat tidigare, börja med \"Felsökning\"."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Installera PostgreSQL och PostGIS"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "På Debian eller Ubuntu:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "sudo apt update\nsudo apt install postgresql\npg_lsclusters\nsudo apt install postgresql-<version>-postgis-3"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "pg_lsclusters"
+        },
+        {
+          "type": "text",
+          "text": " visar vilken version av PostgreSQL som installerades, till exempel "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "16"
+        },
+        {
+          "type": "text",
+          "text": "."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Alternativ med Docker, om databasen ska ligga på samma dator som innehållsservern:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "docker run -d --name structure-map-db \\\n  -e POSTGRES_USER=structure_map_content \\\n  -e POSTGRES_PASSWORD=<lösenord> \\\n  -e POSTGRES_DB=structure_map_content \\\n  -p 127.0.0.1:5432:5432 \\\n  -v structure-map-db:/var/lib/postgresql/data \\\n  postgis/postgis:16-3.4"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Med Docker är databasen klar efter det här. Hoppa till \"Koppla upp innehållsservern\"."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Skapa databasen"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Görs en gång, som superanvändare:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "sudo -u postgres psql"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "sql"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "CREATE ROLE structure_map_content LOGIN PASSWORD '<lösenord>';\nCREATE DATABASE structure_map_content OWNER structure_map_content;\n\\c structure_map_content\nCREATE EXTENSION IF NOT EXISTS postgis;\nALTER SCHEMA public OWNER TO structure_map_content;"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Tabellerna skapas inte här. Innehållsservern skapar dem själv när den startar."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Ligger databasen på en annan dator än innehållsservern behöver den också ta emot anslutningar. I "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "/etc/postgresql/<version>/main/postgresql.conf"
+        },
+        {
+          "type": "text",
+          "text": ":"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "listen_addresses = 'localhost,<databasserverns-ip>'"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "I "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "/etc/postgresql/<version>/main/pg_hba.conf"
+        },
+        {
+          "type": "text",
+          "text": ":"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "host  structure_map_content  structure_map_content  <innehållsserverns-ip>/32  scram-sha-256"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Starta sedan om databasen:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "sudo systemctl restart postgresql"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Koppla upp innehållsservern"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Innehållsservern läser sina inställningar från filen "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "content_server_node/.env"
+        },
+        {
+          "type": "text",
+          "text": ". Skapa den från mallen om den inte finns:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "cp content_server_node/.env.example content_server_node/.env"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Filen ska innehålla:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "PORT=3000\nJWT_SECRET=<lång-slumpmässig-sträng>\nADMIN_PASSWORD=<administratörslösenord>\nNODE_ENV=production\nDATABASE_URL=postgres://structure_map_content:<lösenord>@<databasvärd>:5432/structure_map_content"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": " är den rad som kopplar upp databasen. Utan den startar inte servern."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "<databasvärd>"
+                },
+                {
+                  "type": "text",
+                  "text": " är "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "localhost"
+                },
+                {
+                  "type": "text",
+                  "text": " om databasen ligger på samma dator, annars databasserverns namn eller IP-adress."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Innehåller lösenordet specialtecken, som "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "@"
+                },
+                {
+                  "type": "text",
+                  "text": ", "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "/"
+                },
+                {
+                  "type": "text",
+                  "text": " eller "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": ":"
+                },
+                {
+                  "type": "text",
+                  "text": ", måste de URL-kodas."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "NODE_ENV=production"
+                },
+                {
+                  "type": "text",
+                  "text": " tas bort vid lokal utveckling."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Filen innehåller lösenord. Den ska inte läggas i git eller visas för andra."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Körs innehållsservern i en container anges samma rader i containerns env-fil. Databasvärden måste då gå att nå inifrån containern."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Starta om och kontrollera"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Servern läser inställningarna och kopplar upp sig när den startar, så den måste startas om efter varje ändring. Använd det som gäller för installationen."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Med pm2:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "pm2 restart server"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Vid lokal utveckling, i repots rotmapp:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "npm start"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Containrar startas om på det sätt som gäller för den installationen."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "I serverns logg ska det stå:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": null
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Applied migration 001_init.sql\nContent server running on http://localhost:3000"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Den första raden visas bara första gången. Står det "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "Failed to start content server:"
+        },
+        {
+          "type": "text",
+          "text": " följt av ett fel är uppkopplingen fortfarande inte rätt."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Kontrollera sedan att servern svarar:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "curl http://localhost:3000/api/content-catalog"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Svaret ska vara "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "{\"layers\":[...]}"
+        },
+        {
+          "type": "text",
+          "text": ". Ladda därefter om kartsidan."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Är databasen ny är den tom, och då står det "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "The database has no content yet"
+        },
+        {
+          "type": "text",
+          "text": " i loggen. Innehåll läggs in av en administratör under Sajtkonfiguration → Versionshistorik, genom import av en exporterad zip-fil, eller från en äldre innehållsmapp:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "node scripts/import-content-folder.js <innehållsmapp>"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Felsökning"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Kartan visar samma meny oavsett vilket uppkopplingsfel det är. Följ stegen i ordning för att ta reda på orsaken. Stegen riktar sig till dig som har tillgång till servern. Efter varje åtgärd: starta om innehållsservern och börja om från steg 1."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Skriv aldrig lösenord på kommandoraden, eftersom de hamnar i kommandohistoriken. Klistra inte heller in "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "DATABASE_URL"
+        },
+        {
+          "type": "text",
+          "text": ", lösenord eller oredigerade loggar i ärenden, chattar eller andra delade ytor."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Saknar du tillgång till servern just nu? Öppna webbläsarens utvecklarverktyg (ofta F12), välj fliken Nätverk och ladda om kartan. Titta på anropen "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "content-catalog"
+        },
+        {
+          "type": "text",
+          "text": " och "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "site-config"
+        },
+        {
+          "type": "text",
+          "text": ". Statuskoderna betyder samma sak som i steg 1. Ett anrop utan statuskod betyder att inget svar kom."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "1. Svarar innehållsservern?"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "curl -i -m 30 http://<innehållsserver>:<port>/api/content-catalog"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Går trafiken via en proxy, prova också adressen som kartan använder: "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "https://<kartans-adress>/api/content-catalog"
+        },
+        {
+          "type": "text",
+          "text": ", med eventuell undersökväg."
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "Connection refused"
+                },
+                {
+                  "type": "text",
+                  "text": ": processen körs inte eller lyssnar på en annan port. Servern avslutas om den inte når databasen när den startar. Gå till steg 2."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Tidsgränsen går ut: servern eller nätverket svarar inte, eller så väntar servern på databasen. Gå till steg 2."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "502 eller 504 via proxyn: proxyn fungerar men får inget svar från innehållsservern. Gå till steg 2."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "500 "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "{\"error\":\"Serverfel\"}"
+                },
+                {
+                  "type": "text",
+                  "text": ": servern körs men anropet misslyckades, troligen mot databasen. Gå till steg 3."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "200 "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "{\"layers\":[]}"
+                },
+                {
+                  "type": "text",
+                  "text": ": uppkopplingen fungerar, men det finns inga kartlager. Oftast är databasen tom. Se stycket om ny databas under \"Starta om och kontrollera\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "200 med lager i listan: servern och databasen fungerar härifrån. Ladda om kartan. Visas menyn ändå, jämför adressen och svaren i fliken Nätverk."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "2. Körs processen?"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Med pm2:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "pm2 status\npm2 logs server --lines 50"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Med Podman:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "sudo podman ps -a\nsudo podman logs --tail 50 <container>"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Vid lokal utveckling syns loggen i terminalen där "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "npm start"
+        },
+        {
+          "type": "text",
+          "text": " körs."
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Stoppad, fel eller många omstarter: läs loggen, gå till steg 3."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Igång och "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "Content server running on"
+                },
+                {
+                  "type": "text",
+                  "text": " står i loggen: kontrollera att "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "PORT"
+                },
+                {
+                  "type": "text",
+                  "text": " stämmer med adressen i steg 1 och, om det finns en proxy, med proxyns inställning."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Igång men varken "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "Content server running on"
+                },
+                {
+                  "type": "text",
+                  "text": " eller något fel står i loggen: servern väntar troligen på databasen. Gå till steg 4."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "3. Vad säger loggen?"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Fel vid start står efter "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "Failed to start content server:"
+        },
+        {
+          "type": "text",
+          "text": ". Fel under drift skrivs ut utan den inledningen, och anropet får då svaret 500."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Inom parentes står var meddelandet kommer ifrån. \"Kartan\" är text från kartans egen kod. \"Node\" och \"PostgreSQL\" är standardmeddelanden, och de kan se något annorlunda ut beroende på version."
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL is not set"
+                },
+                {
+                  "type": "text",
+                  "text": " (Kartan): raden saknas i "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": ".env"
+                },
+                {
+                  "type": "text",
+                  "text": " eller containerns env-fil. Lägg till den, se \"Koppla upp innehållsservern\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "Failed to start content server:"
+                },
+                {
+                  "type": "text",
+                  "text": " utan text efter (Kartan): oftast nekad anslutning när värden är "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "localhost"
+                },
+                {
+                  "type": "text",
+                  "text": ". Gå till steg 4."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "The database has no content yet"
+                },
+                {
+                  "type": "text",
+                  "text": " (Kartan): inget fel. Databasen är uppkopplad men tom. Se stycket om ny databas under \"Starta om och kontrollera\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "connect ECONNREFUSED <ip>:5432"
+                },
+                {
+                  "type": "text",
+                  "text": " (Node): databasen körs inte, fel port, eller så lyssnar den inte på adressen. Gå till steg 4, sedan steg 5."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "connect ETIMEDOUT <ip>:5432"
+                },
+                {
+                  "type": "text",
+                  "text": " (Node): brandvägg eller fel adress. Gå till steg 5."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "getaddrinfo ENOTFOUND <namn>"
+                },
+                {
+                  "type": "text",
+                  "text": " (Node): fel värdnamn, eller ett lösenord med specialtecken som inte är URL-kodade. "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "<namn>"
+                },
+                {
+                  "type": "text",
+                  "text": " kan då vara en del av lösenordet, så dela inte raden. Rätta "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "SASL: SCRAM-SERVER-FIRST-MESSAGE: client password must be a string"
+                },
+                {
+                  "type": "text",
+                  "text": " (Node): lösenordet saknas i "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": ". Rätta "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": "."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "password authentication failed for user \"<användare>\""
+                },
+                {
+                  "type": "text",
+                  "text": " (PostgreSQL): fel användare eller lösenord. Rätta "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": " eller byt lösenord på rollen."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "no pg_hba.conf entry for host \"<ip>\""
+                },
+                {
+                  "type": "text",
+                  "text": " ... (PostgreSQL): databasen tar inte emot anslutningar från den adressen. Gå till steg 5."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "database \"<databas>\" does not exist"
+                },
+                {
+                  "type": "text",
+                  "text": " (PostgreSQL): fel namn, eller så är databasen inte skapad. Rätta "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": " eller se \"Skapa databasen\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "permission denied to create extension \"postgis\""
+                },
+                {
+                  "type": "text",
+                  "text": " (PostgreSQL): rollen får inte skapa tillägget. Kör "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "CREATE EXTENSION postgis;"
+                },
+                {
+                  "type": "text",
+                  "text": " som superanvändare i databasen."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "extension \"postgis\" is not available"
+                },
+                {
+                  "type": "text",
+                  "text": " eller "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "could not open extension control file"
+                },
+                {
+                  "type": "text",
+                  "text": " (PostgreSQL): PostGIS är inte installerat på databasservern. Se \"Installera PostgreSQL och PostGIS\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "permission denied for schema public"
+                },
+                {
+                  "type": "text",
+                  "text": " (PostgreSQL): rollen får inte skapa tabeller. Kör "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "ALTER SCHEMA public OWNER TO <användare>;"
+                },
+                {
+                  "type": "text",
+                  "text": " som superanvändare."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Tabellerna skapas när servern startar. Misslyckas det står inte ordet migration i felet, bara databasens eget meddelande efter "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "Failed to start content server:"
+        },
+        {
+          "type": "text",
+          "text": ", och "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "Applied migration"
+        },
+        {
+          "type": "text",
+          "text": " saknas i loggen. Ändringen rullas tillbaka och görs om vid nästa start, så åtgärda felet och starta om."
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "4. Är databasen igång och går den att nå?"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "På databasservern, efter vad som gäller för installationen:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "pg_lsclusters\nsystemctl status postgresql\ndocker ps -a"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Är den stoppad, starta den med "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "sudo systemctl start postgresql"
+        },
+        {
+          "type": "text",
+          "text": " eller "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "docker start <databascontainer>"
+        },
+        {
+          "type": "text",
+          "text": "."
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Från innehållsserverns dator:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "pg_isready -h <databasvärd> -p 5432"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "accepting connections"
+                },
+                {
+                  "type": "text",
+                  "text": ": databasen svarar. Fortsätt med "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "psql"
+                },
+                {
+                  "type": "text",
+                  "text": " nedan."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "rejecting connections"
+                },
+                {
+                  "type": "text",
+                  "text": ": databasen håller på att starta. Vänta och försök igen."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "no response"
+                },
+                {
+                  "type": "text",
+                  "text": ": databasen körs inte, eller så stoppar nätverket anslutningen. Gå till steg 5."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Prova sedan att logga in. Lösenordet är utelämnat i adressen, så "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "code"
+            }
+          ],
+          "text": "psql"
+        },
+        {
+          "type": "text",
+          "text": " frågar efter det:"
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "bash"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "psql \"postgres://<användare>@<databasvärd>:5432/<databas>\""
+        }
+      ]
+    },
+    {
+      "type": "codeBlock",
+      "attrs": {
+        "language": "sql"
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "SELECT PostGIS_Version();"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Ett versionsnummer: databasen fungerar. Jämför uppgifterna med "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": " och starta om innehållsservern."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "function postgis_version() does not exist"
+                },
+                {
+                  "type": "text",
+                  "text": ": tillägget saknas i databasen. Kör "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "CREATE EXTENSION postgis;"
+                },
+                {
+                  "type": "text",
+                  "text": " som superanvändare."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Inloggningen misslyckas: slå upp meddelandet i steg 3."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 3
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "5. Nätverk"
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Container: inifrån en container betyder "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "localhost"
+                },
+                {
+                  "type": "text",
+                  "text": " containern själv, inte datorn den körs på. Ange databasens namn eller IP-adress i "
+                },
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "DATABASE_URL"
+                },
+                {
+                  "type": "text",
+                  "text": ". Prova från containern:"
+                }
+              ]
+            },
+            {
+              "type": "codeBlock",
+              "attrs": {
+                "language": "bash"
+              },
+              "content": [
+                {
+                  "type": "text",
+                  "text": "sudo podman exec <container> node -e \"require('net').connect(5432,'<databasvärd>').on('connect',()=>{console.log('Kontakt');process.exit()}).on('error',e=>{console.log(e.code);process.exit(1)})\""
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "bulletList",
+      "content": [
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "text": "Brandvägg: port 5432 måste vara öppen från innehållsservern till databasservern."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "listen_addresses"
+                },
+                {
+                  "type": "text",
+                  "text": ": måste innehålla en adress som innehållsservern kan nå. Se \"Skapa databasen\"."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "listItem",
+          "content": [
+            {
+              "type": "paragraph",
+              "content": [
+                {
+                  "type": "text",
+                  "marks": [
+                    {
+                      "type": "code"
+                    }
+                  ],
+                  "text": "pg_hba.conf"
+                },
+                {
+                  "type": "text",
+                  "text": ": måste ha en rad för den adress databasen ser att anslutningen kommer ifrån, vilket kan vara en annan adress än du väntar dig när innehållsservern körs i en container. Starta om databasen efter ändringar."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 2
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Behöver du hjälp"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Mer information finns i "
+        },
+        {
+          "type": "text",
+          "marks": [
+            {
+              "type": "link",
+              "attrs": {
+                "href": "https://github.com/Sundsvallskommun/origo-map-stories#readme",
+                "target": "_blank",
+                "rel": "noopener noreferrer nofollow",
+                "class": null
+              }
+            }
+          ],
+          "text": "README-filen på GitHub"
+        },
+        {
+          "type": "text",
+          "text": "."
+        }
+      ]
+    }
+  ]
+}

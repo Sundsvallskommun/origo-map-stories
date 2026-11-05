@@ -1,0 +1,32 @@
+<!--
+  Additions to an existing Origo index.html. Copy the release's plugin/ folder
+  to the site's plugins/ folder first (origo-map-stories.min.js, .min.css,
+  gor-sa-har.json and img/).
+
+  1. In <head>, after Origo's own stylesheet:
+-->
+<link href="plugins/origo-map-stories.min.css" rel="stylesheet">
+
+<!--
+  2. After <script src="js/origo.js"></script>:
+-->
+<script src="plugins/origo-map-stories.min.js"></script>
+
+<!--
+  3. Register the control in the Origo(...) call. The key ("mapstories") is the
+     control name used in index.json.
+-->
+<script type="text/javascript">
+  var origo = Origo('index.json', {
+    controls: {
+      mapstories: OrigoMapStories
+    }
+  });
+</script>
+
+<!--
+  4. If the page has a Content-Security-Policy, it must allow:
+       frame-src 'self'      (the editor opens editor.html in an iframe)
+       connect-src 'self'    (the content API; add its origin if it is elsewhere)
+       img-src 'self' data:  (uploaded images and the fallback images)
+-->

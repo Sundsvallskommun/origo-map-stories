@@ -1,0 +1,27 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug in Edge",
+      "type": "msedge",
+      "request": "launch",
+      "url": "http://localhost:9966",
+      "webRoot": "${workspaceFolder}/../origo",
+      "sourceMapPathOverrides": {
+        "webpack:///*": "${workspaceFolder}/*"
+      },
+      "preLaunchTask": "Start Dev Environment"
+    },
+    {
+      "name": "Debug in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9966",
+      "webRoot": "${workspaceFolder}/../origo",
+      "sourceMapPathOverrides": {
+        "webpack:///*": "${workspaceFolder}/*"
+      },
+      "preLaunchTask": "Start Dev Environment"
+    }
+  ]
+}

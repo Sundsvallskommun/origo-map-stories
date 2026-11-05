@@ -1,0 +1,1019 @@
+﻿// Theme tokens. A host page restyles the plugin by overriding these, e.g.
+//   :root { --oms-primary: #00594f; --oms-font: "Open Sans", sans-serif; }
+// A header image set here from another stylesheet should be an absolute URL.
+:root {
+  --oms-primary: #1f5f8b;
+  --oms-text: #1d1d1f;
+  --oms-muted-text: #4f4f55;
+  --oms-surface: #ffffff;
+  --oms-panel: #f5f6f8;
+  --oms-border: #d3d8de;
+  --oms-focus: #1f5f8b;
+  --oms-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  // Relative to this stylesheet (plugins/), i.e. plugins/img/header.png.
+  --oms-header-image: url('img/header.png');
+}
+
+.o-plugin-layout {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--oms-font);
+}
+
+.o-plugin-viewer {
+  flex: 1;
+  min-width: 0;
+}
+
+.o-mapstories-corner-logo {
+  position: absolute;
+  right: 50px;
+  bottom: 52px;
+  width: 190px;
+  max-width: 32%;
+  height: auto;
+  z-index: 5;
+  pointer-events: none;
+  user-select: none;
+}
+
+#o-layer-panel {
+  width: 250px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--oms-surface);
+  border-right: 1px solid var(--oms-border);
+  color: var(--oms-text);
+  font-size: 15px;
+  z-index: 12;
+}
+
+.o-lp-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0;
+  padding: 0 0 12px;
+  background: #fff;
+  color: var(--oms-text);
+  font-family: var(--oms-font);
+  font-weight: 700;
+  letter-spacing: 0;
+  border-bottom: 1px solid var(--oms-border);
+}
+
+.o-lp-header-hero {
+  width: 100%;
+  min-height: 310px;
+  background-image: var(--oms-header-image);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.o-lp-header-title {
+  padding: 7px 14px 0;
+  color: var(--oms-primary);
+  font-family: var(--oms-font);
+  font-size: 24px;
+  line-height: 1.2;
+  font-weight: 700;
+  transform: translateY(0);
+}
+
+.o-lp-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+
+  &:hover { opacity: 0.85; }
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.o-lp-body {
+  flex: 1;
+  overflow-y: auto;
+  background: var(--oms-panel);
+}
+
+.o-lp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.o-lp-section {
+  border-bottom: 1px solid var(--oms-border);
+}
+
+.o-lp-section-btn {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  border: 0;
+  background: #fff;
+  color: var(--oms-text);
+  padding: 11px 14px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    background: #edf6fc;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oms-focus);
+    outline-offset: -2px;
+  }
+}
+
+.o-lp-chevron {
+  color: var(--oms-primary);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.o-lp-submenu {
+  display: flex;
+  flex-direction: column;
+  background: #fbfdff;
+  padding: 6px 0;
+}
+
+.o-lp-submenu[hidden] {
+  display: none !important;
+}
+
+.o-lp-subitem {
+  text-align: left;
+  border: 0;
+  border-left: 4px solid transparent;
+  background: transparent;
+  color: var(--oms-muted-text);
+  padding: 9px 14px 9px 18px;
+  font-size: 14px;
+  cursor: pointer;
+
+  &:hover {
+    background: #eef7ff;
+    color: var(--oms-text);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oms-focus);
+    outline-offset: -2px;
+  }
+
+  &.is-active {
+    border-left-color: var(--oms-primary);
+    background: #e2f2ff;
+    color: var(--oms-primary);
+    font-weight: 700;
+  }
+}
+
+.o-lp-status {
+  border-top: 1px solid var(--oms-border);
+  padding: 9px 12px;
+  font-size: 12px;
+  color: #2a4f67;
+  background: #f1f8fd;
+  min-height: 16px;
+}
+
+#o-text-panel {
+  width: 40%;
+  min-width: 320px;
+  max-width: 620px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--oms-surface);
+  border-right: 1px solid var(--oms-border);
+  font-family: var(--oms-font);
+  font-size: 14px;
+  overflow: hidden;
+  z-index: 10;
+}
+
+.o-tp-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: var(--oms-primary);
+  color: #fff;
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.o-tp-title {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.o-tp-close {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 4px;
+
+  &:hover { opacity: 0.8; }
+  &:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.o-tp-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 14px;
+  background: #fff;
+}
+
+.o-tp-next {
+  display: flex;
+  justify-content: center;
+  padding: 18px 0 6px;
+}
+
+.o-tp-next-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--oms-border);
+  border-radius: 50%;
+  background: var(--oms-panel);
+  color: var(--oms-primary);
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+
+  &[hidden] { display: none; }
+
+  &:hover {
+    background: #e2f2ff;
+    border-color: var(--oms-primary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--oms-focus);
+    outline-offset: 2px;
+  }
+}
+
+.o-tp-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-top: 1px solid var(--oms-border);
+  background: var(--oms-panel);
+  flex-wrap: wrap;
+}
+
+.o-tp-status {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.o-btn-primary,
+.o-btn-secondary {
+  padding: 6px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 13px;
+  border: 1px solid transparent;
+  font-family: var(--oms-font);
+
+  &:focus-visible {
+    outline: 2px solid var(--oms-focus);
+    outline-offset: 1px;
+  }
+}
+
+.o-btn-primary {
+  background: var(--oms-primary);
+  color: #fff;
+
+  &:hover { background: #004a88; }
+}
+
+.o-btn-secondary {
+  background: #fff;
+  border-color: var(--oms-border);
+  color: var(--oms-text);
+
+  &:hover { background: #eff5f9; }
+}
+
+.o-editor-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 6px 14px;
+  background: #ecf4fb;
+  border-bottom: 1px solid var(--oms-border);
+
+  button {
+    padding: 4px 8px;
+    border: 1px solid #b7cbe0;
+    border-radius: 3px;
+    background: #fff;
+    color: #0d406a;
+    cursor: pointer;
+    font-size: 13px;
+
+    &:hover { background: #dcecff; }
+    &:focus-visible {
+      outline: 2px solid var(--oms-focus);
+      outline-offset: 1px;
+    }
+  }
+
+  .o-link-map-btn {
+    background: #e9f7eb;
+    border-color: #91c89a;
+
+    &:hover { background: #d3f0d8; }
+  }
+}
+
+// In edit mode the toolbar is the first child of the scrolling .o-tp-body.
+// Keep it stuck to the top while the text scrolls; the negative margins cancel
+// the body's padding so it spans the full width and no text shows around it.
+// Browsers measure sticky offsets from inside the scroll container's padding,
+// so top: -14px puts it flush with the top edge.
+.o-tp-body > .o-editor-toolbar {
+  position: sticky;
+  top: -14px;
+  z-index: 3;
+  margin: -14px -14px 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.o-image-node {
+  display: block;
+  cursor: pointer;
+  line-height: 0;
+
+  img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    pointer-events: none;
+  }
+
+  &.ProseMirror-selectednode {
+    outline: 2px solid var(--oms-focus);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.o-tiptap-content {
+  outline: none;
+  min-height: 200px;
+  line-height: 1.6;
+
+  code {
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: #eef0f2;
+    font-family: Consolas, Menlo, monospace;
+    font-size: 0.9em;
+    overflow-wrap: anywhere;
+  }
+
+  pre {
+    margin: 8px 0 12px;
+    padding: 10px 12px;
+    border-radius: 4px;
+    background: #2b2f33;
+    color: #f2f4f5;
+    overflow-x: auto;
+
+    code {
+      padding: 0;
+      background: none;
+      color: inherit;
+      overflow-wrap: normal;
+    }
+  }
+  color: #111;
+
+  h1 { font-size: 1.6em; margin: 0.5em 0; }
+  h2 { font-size: 1.3em; margin: 0.5em 0; }
+  p { margin: 0.4em 0; }
+  ul { padding-left: 1.4em; }
+  img { max-width: 100%; height: auto; }
+
+  &[contenteditable='true'] {
+    border: 1px solid #b6cee4;
+    padding: 8px;
+    border-radius: 3px;
+    background: #fcfeff;
+  }
+}
+
+.o-map-link {
+  font-weight: 700;
+  color: var(--oms-primary);
+  border-bottom: 2px solid var(--oms-primary);
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0 2px;
+
+  &:hover { background: #edf6fc; }
+
+  &--active {
+    background: #d9efff;
+  }
+}
+
+.o-map-view-link {
+  font-weight: 700;
+  color: var(--oms-primary);
+  border-bottom: 2px dashed var(--oms-primary);
+  border-radius: 2px;
+  cursor: pointer;
+  padding: 0 2px;
+
+  &:hover { background: #edf6fc; }
+}
+
+.o-mapstories {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  height: auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+
+  .o-mapstories-button-icon {
+    height: 28px;
+    width: auto;
+    display: block;
+  }
+
+  &.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+.o-ui .o-legend.bottom-right {
+  bottom: calc(1rem + 100px);
+}
+
+@media (max-width: 1200px) {
+  #o-layer-panel {
+    width: 240px;
+  }
+
+  #o-text-panel {
+    width: 38%;
+    min-width: 280px;
+  }
+}
+
+// ── Layer panel settings button ──────────────────────────────────────────────
+.o-lp-settings-btn {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 2;
+  background: rgba(255,255,255,0.85);
+  border: 1px solid rgba(255,255,255,0.6);
+  border-radius: 4px;
+  color: var(--oms-primary);
+  font-size: 16px;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover { background: #fff; }
+  &:focus-visible { outline: 2px solid var(--oms-primary); outline-offset: 1px; }
+}
+
+// ── Site config editor overlay ───────────────────────────────────────────────
+.o-cfg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  background: rgba(0,0,0,0.45);
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 32px 16px;
+  overflow-y: auto;
+}
+
+.o-cfg-panel {
+  background: #fff;
+  border-radius: 6px;
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+  font-family: var(--oms-font);
+  font-size: 14px;
+  color: var(--oms-text);
+}
+
+.o-cfg-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--oms-primary);
+  color: #fff;
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: 6px 6px 0 0;
+}
+
+.o-cfg-x-btn {
+  background: transparent;
+  border: 0;
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 2px 4px;
+  &:hover { opacity: 0.8; }
+}
+
+.o-cfg-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0;
+}
+
+.o-cfg-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--oms-border);
+  background: var(--oms-panel);
+}
+
+.o-cfg-tab-btn {
+  padding: 12px 16px;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--oms-muted-text);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--oms-font);
+  cursor: pointer;
+
+  &:hover { color: var(--oms-text); }
+
+  &.is-active {
+    color: var(--oms-primary);
+    border-bottom-color: var(--oms-primary);
+  }
+}
+
+.o-cfg-section {
+  border-bottom: 1px solid var(--oms-border);
+  padding: 18px 20px;
+}
+
+.o-cfg-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--oms-muted-text);
+  margin: 0 0 14px;
+}
+
+.o-cfg-field {
+  margin-bottom: 14px;
+  &:last-child { margin-bottom: 0; }
+}
+
+.o-cfg-label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.o-cfg-input {
+  width: 100%;
+  padding: 6px 9px;
+  border: 1px solid var(--oms-border);
+  border-radius: 3px;
+  font-family: var(--oms-font);
+  font-size: 14px;
+  color: var(--oms-text);
+  &:focus-visible { outline: 2px solid var(--oms-focus); outline-offset: 1px; }
+}
+
+.o-cfg-img-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.o-cfg-img-thumb {
+  flex-shrink: 0;
+  background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 12px 12px;
+  border: 1px solid var(--oms-border);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-size: 11px;
+  color: var(--oms-muted-text);
+
+  img { max-width: 100%; max-height: 100%; display: block; object-fit: contain; }
+
+  &--tall  { width: 70px; height: 95px; }
+  &--icon  { width: 38px; height: 49px; }
+  &--logo  { width: 120px; height: 41px; }
+}
+
+.o-cfg-img-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.o-cfg-hint {
+  font-size: 11px;
+  color: var(--oms-muted-text);
+}
+
+.o-cfg-img-err {
+  font-size: 12px;
+  color: #c00;
+  min-height: 16px;
+}
+
+.o-cfg-file-input {
+  display: none !important;
+}
+
+// Menu editor
+.o-cfg-menu-group {
+  border: 1px solid var(--oms-border);
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.o-cfg-menu-group-header {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--oms-panel);
+  border-radius: 4px 4px 0 0;
+
+  .o-cfg-input { font-weight: 700; }
+}
+
+.o-cfg-order-btns {
+  display: flex;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
+.o-cfg-order-btn, .o-cfg-del-btn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--oms-border);
+  border-radius: 3px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  &:hover { background: #edf6fc; }
+}
+
+.o-cfg-del-btn { color: #c00; border-color: #e0b3b3; &:hover { background: #fff0f0; } }
+
+.o-cfg-items {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.o-cfg-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  .o-cfg-item-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .o-cfg-item-label { flex: 1; min-width: 0; }
+}
+
+.o-cfg-add-item-btn, .o-cfg-add-menu-btn {
+  font-size: 12px;
+  color: var(--oms-primary);
+  background: transparent;
+  border: 1px dashed var(--oms-primary);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font-family: var(--oms-font);
+  &:hover { background: #edf6fc; }
+}
+
+.o-cfg-add-menu-btn {
+  margin-top: 4px;
+}
+
+.o-cfg-panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 20px;
+  border-top: 1px solid var(--oms-border);
+  background: var(--oms-panel);
+  border-radius: 0 0 6px 6px;
+  flex-wrap: wrap;
+}
+
+.o-cfg-status {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-style: italic;
+}
+
+// Avbryt · Spara · Spara och stäng, kept together (and right-aligned) when
+// the footer wraps on a narrow screen.
+.o-cfg-footer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+
+// Versions tab
+.o-cfg-versions-intro {
+  margin: 0 0 12px;
+}
+
+.o-cfg-versions-actions {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.o-cfg-versions-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+
+  th, td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--oms-border);
+    text-align: left;
+    vertical-align: middle;
+  }
+
+  th {
+    background: var(--oms-panel);
+    color: var(--oms-muted-text);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  td:nth-child(1), td:nth-child(2), td:nth-child(5) { white-space: nowrap; }
+
+  tr.is-current td { background: #eff5f9; }
+}
+
+.o-cfg-version-badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 1px 6px;
+  border-radius: 8px;
+  background: var(--oms-primary);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.o-cfg-version-actions {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  justify-content: flex-end;
+
+  .o-btn-secondary { padding: 3px 8px; font-size: 12px; }
+}
+
+// ─── Map Link Modal ───────────────────────────────────────────────────────────
+
+.o-mlink-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: var(--oms-font);
+}
+
+.o-mlink-modal {
+  background: var(--oms-surface);
+  border-radius: 6px;
+  width: 90%;
+  max-width: 520px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+}
+
+.o-mlink-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--oms-border);
+  background: var(--oms-panel);
+
+  h2 {
+    margin: 0;
+    font-size: 18px;
+    color: var(--oms-primary);
+    font-weight: 700;
+  }
+}
+
+.o-mlink-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--oms-muted-text);
+  width: 32px;
+  height: 32px;
+  border-radius: 4px;
+
+  &:hover { background: rgba(0, 0, 0, 0.08); }
+}
+
+.o-mlink-body {
+  overflow-y: auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.o-mlink-warning {
+  font-size: 13px;
+  color: #c00;
+}
+
+.o-mlink-option {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  padding: 12px 14px;
+  background: var(--oms-surface);
+  border: 1px solid var(--oms-border);
+  border-radius: 4px;
+  font-family: inherit;
+  color: var(--oms-text);
+
+  &:is(button) { cursor: pointer; }
+  &:is(button):hover:not(:disabled) {
+    background: #edf6fc;
+    border-color: var(--oms-primary);
+  }
+  &:disabled { opacity: 0.5; cursor: default; }
+}
+
+.o-mlink-option-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--oms-primary);
+}
+
+.o-mlink-option-desc {
+  font-size: 12px;
+  color: var(--oms-muted-text);
+}
+
+.o-mlink-layer-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+
+  select {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+  }
+}
+
+.o-mlink-footer {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid var(--oms-border);
+  background: var(--oms-panel);
+}
+
+// ─── Admin Login Modal ────────────────────────────────────────────────────────
+
+.o-admin-login-modal {
+  max-width: 380px;
+
+  label {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--oms-text);
+  }
+
+  input {
+    padding: 6px 9px;
+    border: 1px solid var(--oms-border);
+    border-radius: 3px;
+    font-family: var(--oms-font);
+    font-size: 14px;
+
+    &:focus-visible { outline: 2px solid var(--oms-focus); }
+  }
+}
+
+.o-admin-login-err {
+  min-height: 16px;
+  font-size: 12px;
+  color: #c00;
+}
+
+@media (max-width: 960px) {
+  #o-layer-panel {
+    width: 210px;
+  }
+
+  #o-text-panel {
+    min-width: 240px;
+  }
+
+  .o-lp-section-btn {
+    font-size: 14px;
+  }
+}
+

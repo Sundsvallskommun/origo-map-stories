@@ -1,0 +1,6 @@
+{
+    "python-envs.defaultEnvManager": "ms-python.python:system",
+    // VS Code's Test Explorer (C# Dev Kit) ignores RunSettingsFilePath in the
+    // csproj; point it at the UI tests' local (gitignored) settings file.
+    "dotnet.unitTests.runSettingsPath": "tests/OrigoMapStories.UiTests/.runsettings"
+}

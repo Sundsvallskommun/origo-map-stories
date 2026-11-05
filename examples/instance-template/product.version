@@ -1,0 +1,13 @@
+# The Origo Map Stories release this installation runs.
+# Read by scripts/fetch-product.ps1 and scripts/fetch-product.sh.
+
+# Release tag in Sundsvallskommun/origo-map-stories.
+PRODUCT_VERSION=v1.0.0
+
+# sha256 of origo-map-stories-<version>.zip, from the release's .sha256 file.
+# Leave empty only until the first download: the fetch scripts then print the
+# digest and stop, so you can compare it with the release page and pin it here.
+PRODUCT_SHA256=
+
+# Optional: another repository (a fork) to download the release from.
+# PRODUCT_REPO=Sundsvallskommun/origo-map-stories

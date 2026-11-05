@@ -1,0 +1,33 @@
+/* Theme for <installation name>. Copy to theme.css and load it AFTER the
+   plugin stylesheet:
+
+     <link href="plugins/origo-map-stories.min.css" rel="stylesheet">
+     <link href="theme/theme.css" rel="stylesheet">
+
+   Tokens and DOM hooks: docs/configuration.md#theming in the product
+   repository. */
+
+:root {
+  /* Buttons, active menu items, links */
+  --oms-primary: #2b6a4f;
+  /* Focus outlines */
+  --oms-focus: #2b6a4f;
+  /* Body text and secondary text */
+  --oms-text: #1d1d1f;
+  --oms-muted-text: #4f4f55;
+  /* Panel background, section and dialog background, borders */
+  --oms-surface: #ffffff;
+  --oms-panel: #f4f6f4;
+  --oms-border: #d2d9d4;
+  /* All plugin text. Load web fonts yourself (and allow them in the CSP). */
+  --oms-font: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  /* Header image of the layer panel. Absolute or root-relative URL: a
+     relative url() here would be resolved against the plugin stylesheet. */
+  --oms-header-image: url('/maps/stories/theme/img/header.jpg');
+}
+
+/* Optional: adjust the corner logo position. */
+.o-mapstories-corner-logo {
+  right: 50px;
+  bottom: 52px;
+}

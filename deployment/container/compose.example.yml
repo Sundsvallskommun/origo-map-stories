@@ -1,0 +1,26 @@
+# The Origo Map Stories content API as a container (docker compose or
+# podman-compose). The web server (nginx, see deployment/examples/) and the
+# PostgreSQL/PostGIS database run elsewhere.
+#
+# Paths are relative to this file inside the unpacked release zip:
+#   ../../server          the Docker build context
+#   content-api.env       copied from content-api.env.example and filled in
+#
+#   docker compose -f deployment/container/compose.example.yml up -d --build
+services:
+  content-api:
+    build:
+      context: ../../server
+    image: origo-map-stories-api:local
+    restart: unless-stopped
+    env_file:
+      - content-api.env
+    # Only reachable from the host; nginx proxies /api/ and /content-files/.
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "-", "http://127.0.0.1:3000/api/version"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 30s

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Copy to .runsettings (gitignored) in this folder and fill in the test database.
+     The database name MUST end with "_test": every test wipes it. -->
+<RunSettings>
+  <RunConfiguration>
+    <EnvironmentVariables>
+      <TEST_DATABASE_URL>postgres://USER:<PASSWORD>@db.example.test:5432/origo_map_stories_test</TEST_DATABASE_URL>
+    </EnvironmentVariables>
+  </RunConfiguration>
+  <Playwright>
+    <BrowserName>chromium</BrowserName>
+    <LaunchOptions>
+      <!-- Set to false to watch the tests run. -->
+      <Headless>true</Headless>
+    </LaunchOptions>
+    <ExpectTimeout>10000</ExpectTimeout>
+  </Playwright>
+</RunSettings>

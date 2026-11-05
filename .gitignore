@@ -1,0 +1,20 @@
+node_modules/
+build/
+dist/
+publish_output/
+content_server_node/.env
+
+# Environment files hold secrets; only the *.env.example templates are tracked.
+*.env
+!*.env.example
+
+# Legacy content folder. All content now lives in the PostgreSQL/PostGIS
+# database (see content_server_node/store.js); a local content/ folder is only
+# kept as input for scripts/import-content-folder.js.
+/content/
+
+# UI tests
+tests/**/bin/
+tests/**/obj/
+tests/**/TestResults/
+tests/**/.runsettings

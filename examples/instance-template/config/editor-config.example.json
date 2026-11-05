@@ -1,0 +1,7 @@
+{
+  "background": {
+    "type": "osm"
+  },
+  "center": [600000, 6900000],
+  "zoom": 1
+}

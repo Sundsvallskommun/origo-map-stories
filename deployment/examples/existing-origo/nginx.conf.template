@@ -1,0 +1,74 @@
+# nginx in front of an existing Origo web server, adding the Origo Map Stories
+# content API under the site's base path.
+#
+# Replace the placeholders before use:
+#   {{BASE_PATH}}             path the Origo site is served under, without a
+#                             trailing slash, e.g. /maps (empty for the root)
+#   {{ORIGO_UPSTREAM}}        the existing Origo web server, e.g. http://origo-web:8080
+#   {{CONTENT_API_UPSTREAM}}  the content API, e.g. http://content-api:3000
+#   {{RESOLVER}}              DNS server that resolves the upstream names, e.g.
+#                             the container network's gateway or 127.0.0.11
+#   {{PLUGIN_DIR}}            folder holding origo-map-stories.min.js under the
+#                             site, e.g. plugins
+#   {{LISTEN}}                port nginx listens on, e.g. 8080
+#
+# The content API must run with PUBLIC_BASE_PATH={{BASE_PATH}} so that the URLs
+# it returns for uploaded files include the base path.
+
+events {}
+
+http {
+  server {
+    listen {{LISTEN}};
+
+    # Version zips and images are uploaded through the API (up to 100 MB).
+    client_max_body_size 100m;
+
+    # Upstreams are given as variables, so nginx re-resolves them per request
+    # (within "valid"). Recreating a container then never leaves nginx on a
+    # stale IP address, and nginx starts even if an upstream is not up yet.
+    resolver {{RESOLVER}} valid=10s ipv6=off;
+
+    # Content API: {{BASE_PATH}}/api/* -> /api/*
+    location {{BASE_PATH}}/api/ {
+      set $content_api {{CONTENT_API_UPSTREAM}};
+      rewrite ^{{BASE_PATH}}/api/(.*)$ /api/$1 break;
+      proxy_pass $content_api;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Uploaded files: {{BASE_PATH}}/content-files/* -> /content-files/*
+    location {{BASE_PATH}}/content-files/ {
+      set $content_api {{CONTENT_API_UPSTREAM}};
+      rewrite ^{{BASE_PATH}}/content-files/(.*)$ /content-files/$1 break;
+      proxy_pass $content_api;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # The plugin keeps the same file names between releases: make browsers
+    # and intermediate caches revalidate (ETag) instead of using an old copy.
+    location {{BASE_PATH}}/{{PLUGIN_DIR}}/ {
+      set $origo {{ORIGO_UPSTREAM}};
+      proxy_pass $origo;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+      proxy_hide_header Cache-Control;
+      add_header Cache-Control "no-cache" always;
+    }
+
+    # Everything else (index.html, index.json, editor.html, Origo itself) is
+    # served by the existing Origo web server, unchanged.
+    location / {
+      set $origo {{ORIGO_UPSTREAM}};
+      proxy_pass $origo;
+      proxy_set_header Host $host;
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto $scheme;
+    }
+  }
+}

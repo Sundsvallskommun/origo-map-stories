@@ -1,0 +1,40 @@
+# Optional nginx in front of a stand-alone installation (see
+# pm2.ecosystem.example.js), e.g. for TLS or to serve the site under a path
+# prefix. The content API serves both the site (PUBLIC_DIR) and /api/*.
+#
+# Placeholders:
+#   {{SERVER_NAME}}           host name, e.g. maps.example.org
+#   {{BASE_PATH}}             path prefix without a trailing slash, e.g. /maps
+#                             (empty for the root); must equal PUBLIC_BASE_PATH
+#   {{CONTENT_API_UPSTREAM}}  the content API, e.g. http://127.0.0.1:3000
+#   {{PLUGIN_DIR}}            folder holding the plugin under the site, e.g. plugins
+#
+# This is a server block for /etc/nginx/conf.d/ (or sites-available/).
+
+server {
+  listen 80;
+  server_name {{SERVER_NAME}};
+
+  # Version zips and images are uploaded through the API (up to 100 MB).
+  client_max_body_size 100m;
+
+  # The plugin keeps the same file names between releases: make browsers
+  # revalidate (ETag) instead of using an old copy.
+  location {{BASE_PATH}}/{{PLUGIN_DIR}}/ {
+    proxy_pass {{CONTENT_API_UPSTREAM}}/{{PLUGIN_DIR}}/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_hide_header Cache-Control;
+    add_header Cache-Control "no-cache" always;
+  }
+
+  # Everything under the base path, with the prefix stripped:
+  # {{BASE_PATH}}/api/* -> /api/*, {{BASE_PATH}}/index.html -> /index.html.
+  location {{BASE_PATH}}/ {
+    proxy_pass {{CONTENT_API_UPSTREAM}}/;
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}

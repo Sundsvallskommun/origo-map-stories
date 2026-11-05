@@ -1,0 +1,88 @@
+# Publishes a GitHub Release for a v* tag: checks that the tag matches
+# package.json, runs the full CI workflow (tests, neutrality check, release
+# zip) with the tag's version, then attaches the zip and its .sha256 file to
+# the release. Only the final job may write to the repository.
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  check-tag:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Tag must match package.json
+        id: version
+        run: |
+          tag_version="${GITHUB_REF_NAME#v}"
+          package_version="$(node -p "require('./package.json').version")"
+          if [ "$tag_version" != "$package_version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $package_version"
+            exit 1
+          fi
+          echo "version=$tag_version" >> "$GITHUB_OUTPUT"
+
+  ci:
+    needs: check-tag
+    uses: ./.github/workflows/ci.yml
+    with:
+      version: ${{ needs.check-tag.outputs.version }}
+
+  release:
+    needs: [check-tag, ci]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      VERSION: ${{ needs.check-tag.outputs.version }}
+      TAG: ${{ github.ref_name }}
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: origo-map-stories-bundle
+          path: dist
+
+      - name: Check checksum
+        working-directory: dist
+        run: sha256sum -c "origo-map-stories-$VERSION.zip.sha256"
+
+      # Release notes: the "## <version>" section of CHANGELOG.md (headings
+      # like "## 1.0.0" or "## [1.0.0] - date"), else GitHub's generated notes.
+      - name: Release notes
+        id: notes
+        run: |
+          if [ -f CHANGELOG.md ]; then
+            awk -v v="$VERSION" '
+              /^## / { if (found) exit; h=$0; gsub(/[\[\]v]/, "", h); split(h, w, " "); if (w[2] == v) { found=1; next } }
+              found { print }
+            ' CHANGELOG.md > release-notes.md
+          fi
+          if [ -s release-notes.md ]; then
+            echo "args=--notes-file release-notes.md" >> "$GITHUB_OUTPUT"
+          else
+            echo "args=--generate-notes" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create release
+        run: >-
+          gh release create "$TAG"
+          "dist/origo-map-stories-$VERSION.zip"
+          "dist/origo-map-stories-$VERSION.zip.sha256"
+          --verify-tag
+          --title "Origo Map Stories $VERSION"
+          ${{ steps.notes.outputs.args }}

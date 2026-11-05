@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+	<!-- A host page written for StructureMapHelper, before the rename to Origo
+	Map Stories: the legacy file names, global, control key and API global. -->
+	<title>Legacy</title>
+	<link href="css/style.css" rel="stylesheet">
+	<link href="plugins/structure-map-helper.css" rel="stylesheet">
+</head>
+<body>
+<div id="app-wrapper">
+</div>
+<script src="js/origo.js"></script>
+<script src="plugins/structure-map-helper.js"></script>
+<script type="text/javascript">
+	// The tests route /legacy-api/* to the content server.
+	window.STRUCTURE_MAP_HELPER_API_BASE = window.location.origin + '/legacy-api';
+	var origo = Origo('legacy.json', {
+		controls: {
+			structuremaphelper: StructureMapHelper
+		}
+	});
+</script>
+</body>
+</html>

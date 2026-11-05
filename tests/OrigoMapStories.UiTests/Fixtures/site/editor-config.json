@@ -1,0 +1,14 @@
+{
+  "background": {
+    "type": "wms",
+    "url": "http://wms.example.test/geoserver/wms",
+    "layers": "example:bakgrund",
+    "version": "1.1.1",
+    "tileGrid": {
+      "resolutions": [280, 140, 70, 28, 14, 7, 4.2, 2.8, 1.4, 0.56, 0.28, 0.14, 0.112, 0.056],
+      "extent": [461400, 6803000, 773960, 7110000]
+    }
+  },
+  "center": [594242, 6940514],
+  "zoom": 1
+}

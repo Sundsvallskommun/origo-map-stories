@@ -1,0 +1,52 @@
+{
+  "type": "FeatureCollection",
+  "name": "Test_Kollektivtrafik",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::3006"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "K1",
+      "properties": {
+        "fid": "K1",
+        "namn": "Stråk"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            590000,
+            6910000
+          ],
+          [
+            620000,
+            6925000
+          ],
+          [
+            650000,
+            6950000
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "K2",
+      "properties": {
+        "fid": "K2",
+        "namn": "Resecentrum"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          618000,
+          6921000
+        ]
+      }
+    }
+  ]
+}

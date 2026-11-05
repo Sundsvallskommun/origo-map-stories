@@ -1,0 +1,85 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Start Origo Dev Server",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}/../origo",
+        "shell": { "executable": "cmd", "args": ["/c"] }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^ERROR in (.*)$", "file": 1 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "webpack",
+          "endsPattern": "compiled successfully"
+        }
+      },
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "Start Plugin Watcher",
+      "type": "shell",
+      "command": "npm",
+      "args": ["start"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "cmd", "args": ["/c"] }
+      },
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": { "regexp": "^ERROR in (.*)$", "file": 1 },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "webpack",
+          "endsPattern": "compiled successfully"
+        }
+      },
+      "presentation": { "group": "dev", "panel": "dedicated" }
+    },
+    {
+      "label": "Start Dev Environment",
+      "dependsOn": ["Start Origo Dev Server", "Start Plugin Watcher"],
+      "dependsOrder": "parallel",
+      "group": { "kind": "build", "isDefault": true },
+      "presentation": { "reveal": "always" }
+    },
+    {
+      "label": "Build Plugin",
+      "type": "shell",
+      "command": "npm",
+      "args": ["run", "build"],
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "cmd", "args": ["/c"] }
+      },
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "Run UI tests",
+      "type": "shell",
+      "command": "npm run build; npm run build-editor; dotnet test tests/OrigoMapStories.UiTests",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "powershell", "args": ["-Command"] }
+      },
+      "group": "test",
+      "presentation": { "panel": "dedicated" }
+    },
+    {
+      "label": "Run server tests",
+      "type": "shell",
+      "command": "npm run test:server",
+      "options": {
+        "cwd": "${workspaceFolder}",
+        "shell": { "executable": "powershell", "args": ["-Command"] }
+      },
+      "group": "test",
+      "presentation": { "panel": "dedicated" }
+    }
+  ]
+}

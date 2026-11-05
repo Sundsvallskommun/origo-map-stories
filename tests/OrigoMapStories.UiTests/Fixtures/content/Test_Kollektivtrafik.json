@@ -1,0 +1,36 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Kollektivtrafik",
+          "marks": [
+            {
+              "type": "mapFeatureLink",
+              "attrs": {
+                "featureId": "K1",
+                "layerName": "Test_Kollektivtrafik",
+                "extent": null
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Busslinjer och resecentrum."
+        }
+      ]
+    }
+  ]
+}

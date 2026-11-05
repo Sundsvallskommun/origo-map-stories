@@ -1,0 +1,47 @@
+{
+  "type": "FeatureCollection",
+  "name": "Test_Bostader_Framtid",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "urn:ogc:def:crs:EPSG::3006"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "F1",
+      "properties": {
+        "fid": "F1",
+        "namn": "Nytt område"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              595000,
+              6925000
+            ],
+            [
+              605000,
+              6925000
+            ],
+            [
+              605000,
+              6935000
+            ],
+            [
+              595000,
+              6935000
+            ],
+            [
+              595000,
+              6925000
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

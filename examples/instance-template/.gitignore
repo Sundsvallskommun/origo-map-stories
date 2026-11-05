@@ -1,0 +1,10 @@
+# Environment files hold secrets and per-machine settings; only the
+# *.env.example templates are committed.
+*.env
+!*.env.example
+
+# Product releases downloaded by scripts/fetch-product.*
+.product/
+
+# Material staged for review that has not been sorted into the repository yet
+_incoming/

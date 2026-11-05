@@ -1,0 +1,61 @@
+{
+  "type": "doc",
+  "content": [
+    {
+      "type": "heading",
+      "attrs": {
+        "level": 1
+      },
+      "content": [
+        {
+          "type": "text",
+          "text": "Bostäder nuläge"
+        }
+      ]
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Här beskrivs "
+        },
+        {
+          "type": "text",
+          "text": "centrumområdet",
+          "marks": [
+            {
+              "type": "mapFeatureLink",
+              "attrs": {
+                "featureId": "B1",
+                "layerName": "Test_Bostader_Nulage",
+                "extent": null
+              }
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "text": " och bostäderna i länet."
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "attrs": {
+        "src": "/content-files/images/fixture-bild.png",
+        "alt": "Fixturbild",
+        "title": null
+      }
+    },
+    {
+      "type": "paragraph",
+      "content": [
+        {
+          "type": "text",
+          "text": "Sista stycket."
+        }
+      ]
+    }
+  ]
+}

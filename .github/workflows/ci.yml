@@ -1,0 +1,157 @@
+# Test gate: checks neutrality, runs the server unit tests and the full UI
+# suite against a throwaway PostGIS database, then builds and verifies the
+# release zip (docs/release-layout.md) and publishes it as the
+# `origo-map-stories-bundle` artifact.
+#
+# release.yml calls this workflow for v* tags, with the version from the tag.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        description: Release version (without "v"); empty means package.json's version.
+        type: string
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+
+    services:
+      postgres:
+        image: postgis/postgis:16-3.4
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          # The postgis image creates the extension in this database.
+          POSTGRES_DB: origo_map_stories_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d origo_map_stories_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+
+    env:
+      # Must end with _test: both suites wipe it. Without it the server tests skip.
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/origo_map_stories_test
+
+    defaults:
+      run:
+        working-directory: origo-map-stories
+
+    steps:
+      # The UI tests read Origo from ../origo/build relative to the repo root.
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: origo-map-stories
+
+      - name: Read pinned Origo ref
+        id: origo
+        run: echo "ref=$(tr -d '[:space:]' < ci/origo.ref)" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout Origo
+        uses: actions/checkout@v4
+        with:
+          repository: origo-map/origo
+          ref: ${{ steps.origo.outputs.ref }}
+          path: origo
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            origo-map-stories/package-lock.json
+            origo/package-lock.json
+
+      - name: Cache Origo build
+        id: origo-cache
+        uses: actions/cache@v4
+        with:
+          path: origo/build
+          key: origo-build-${{ steps.origo.outputs.ref }}-node22
+
+      - name: Build Origo
+        if: steps.origo-cache.outputs.cache-hit != 'true'
+        working-directory: origo
+        run: |
+          npm ci
+          npm run build
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check neutrality
+        run: npm run check:neutral
+
+      - name: Build plugin and editor
+        run: |
+          npm run build
+          npm run build-editor
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      # The two suites share the test database: run them one after the other.
+      - name: Server unit tests
+        run: npm run test:server
+
+      - name: Build UI tests
+        run: dotnet build tests/OrigoMapStories.UiTests
+
+      - name: Install Playwright Chromium
+        run: pwsh tests/OrigoMapStories.UiTests/bin/Debug/net10.0/playwright.ps1 install --with-deps chromium
+
+      # Headless is Playwright's default; there is no .runsettings in CI.
+      - name: UI tests
+        run: >-
+          dotnet test tests/OrigoMapStories.UiTests --no-build
+          --logger "trx;LogFileName=ui-tests.trx"
+          --results-directory TestResults
+
+      - name: Upload test results
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results
+          path: origo-map-stories/TestResults
+          if-no-files-found: ignore
+
+      # BUILD_SHA comes from GITHUB_SHA.
+      - name: Build release zip
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [ -n "$VERSION" ]; then
+            npm run release:zip -- --version "$VERSION"
+            npm run release:verify -- --version "$VERSION"
+          else
+            npm run release:zip
+            npm run release:verify
+          fi
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: origo-map-stories-bundle
+          path: |
+            origo-map-stories/dist/*.zip
+            origo-map-stories/dist/*.zip.sha256
+          if-no-files-found: error
+          retention-days: 30
